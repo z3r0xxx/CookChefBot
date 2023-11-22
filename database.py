@@ -1,4 +1,5 @@
 
+import random
 from models import *
 from logs import logger
 from sqlalchemy import create_engine, select, text
@@ -18,8 +19,40 @@ def create_user(user_id):
             
             try:
                 session.commit()
+                logger.info(f'User user_id {user_id} ↔ Запись успешно создана')
             except IntegrityError as e:
                 session.rollback()
                 logger.error(f'User user_id {user_id} ↔ Произошла ошибка при создании записи:', e)
         else:
-            pass
+            logger.info(f'User user_id {user_id} ↔ Запись уже существует!')
+
+
+def get_recipes():
+    with Session(autoflush=False, bind=engine) as session:
+        existing_recipes = session.query(Recipe).all()
+        if existing_recipes is not None:
+            return existing_recipes
+        else:
+            return None
+
+
+def get_random_recipe():
+    all_recipes = get_recipes()
+    
+    return random.choice(all_recipes)
+
+
+def get_products_in_recipe(recipe_id):
+    with Session(autoflush=False, bind=engine) as session:
+        existing_recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+
+        result = []
+        for p in existing_recipe.products.split(" "):
+            product = session.query(Product).filter_by(id=int(p)).first()
+            result.append(product)
+
+    return result
+
+
+def get_total_stats():
+    pass
