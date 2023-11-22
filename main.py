@@ -1,7 +1,10 @@
 import asyncio
 
+from logs import logger
 from settings import TOKEN
+from database import *
 from keyboards import *
+
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 from aiogram.types import Message, FSInputFile, CallbackQuery, InputMediaPhoto
@@ -12,6 +15,9 @@ dp = Dispatcher()
 @dp.message(Command("start"))
 async def start(message: Message):
     """ Обработчик команды /start """
+
+    # Создание пользователя в БД
+    create_user(user_id=message.from_user.id)
 
     # Отправляем баннер и текст с клавиатурой
     await message.answer_photo(
@@ -29,20 +35,9 @@ async def start(message: Message):
 
 @dp.callback_query(MyCallback.filter())
 async def buttons_callback(call: CallbackQuery, callback_data: MyCallback):
-    """ Обработчик нажатий на кнопки """
+    """ Обработчик нажатия на кнопки """
 
-    # Кнопка "Хочу случайный рецепт"
-    if callback_data.test == "1":
-        await call.message.edit_media(
-            media=InputMediaPhoto(media=FSInputFile("images/image_1.jpg"))
-        )
-
-        await call.message.edit_caption(
-            caption="123",
-            parse_mode="HTML",
-            reply_markup=inline_kb_random_recipe
-        )
-    
+    # Кнопка "Вернуться в главное меню"
     if callback_data.test == "0":
         await call.message.edit_media(
             media=InputMediaPhoto(media=FSInputFile("images/banner_1.jpg"))
@@ -59,14 +54,32 @@ async def buttons_callback(call: CallbackQuery, callback_data: MyCallback):
             reply_markup=inline_kb_full
         )
 
+    # Кнопка "Хочу случайный рецепт"
+    if callback_data.test == "1":
+        await call.message.edit_media(
+            media=InputMediaPhoto(media=FSInputFile("images/image_1.jpg"))
+        )
+
+        await call.message.edit_caption(
+            caption="123",
+            parse_mode="HTML",
+            reply_markup=inline_kb_random_recipe
+        )
+
 
 @dp.message()
 async def on_message(message: Message):
-    pass
+    """ Обработчик входящих сообщений """
+
+    # Создание пользователя в БД
+    create_user(user_id=message.from_user.id)
 
 
 async def main():
     """ Главная функция программы """
+
+    print('\n       TELEGRAM BOT by zrx\n')
+    logger.info(f'Бот успешно загружен.')
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
