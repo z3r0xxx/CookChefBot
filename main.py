@@ -56,12 +56,14 @@ async def buttons_callback(call: CallbackQuery, callback_data: MyCallback):
 
     # Кнопка "Хочу случайный рецепт"
     if callback_data.test == "1":
+        random_recipe = get_random_recipe()
+
         await call.message.edit_media(
-            media=InputMediaPhoto(media=FSInputFile("images/image_1.jpg"))
+            media=InputMediaPhoto(media=FSInputFile(random_recipe.image_path))
         )
 
         await call.message.edit_caption(
-            caption="123",
+            caption=random_recipe.text,
             parse_mode="HTML",
             reply_markup=inline_kb_random_recipe
         )
