@@ -18,7 +18,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer())
     total_messages: Mapped[int] = mapped_column(Integer(), default=0)
-    role: Mapped[str] = mapped_column(String())
+    role: Mapped[str] = mapped_column(String(), default="user")
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, user_id={self.user_id!r}, total_messages={self.total_messages!r}, role={self.role!r})"
