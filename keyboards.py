@@ -27,7 +27,7 @@ inline_kb_full = InlineKeyboardMarkup(
 )
 
 # Клавиатура 2
-inline_btn_4 = InlineKeyboardButton(text="Круто! (23)", callback_data=MyCallback(test="4").pack())
+inline_btn_4 = InlineKeyboardButton(text="Круто!", callback_data=MyCallback(test="4").pack())
 inline_btn_5 = InlineKeyboardButton(text="Покажите другой", callback_data=MyCallback(test="5").pack())
 
 inline_kb_random_recipe = InlineKeyboardMarkup(
