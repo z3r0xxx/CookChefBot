@@ -52,3 +52,23 @@ def get_products_in_recipe(recipe_id):
             result.append(product)
 
     return result
+
+
+def get_recipe_(recipe_id):
+    with Session(autoflush=False, bind=engine) as session:
+        existing_recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+
+    return existing_recipe
+
+
+def add_rate_to_recipe(recipe_id):
+    with Session(autoflush=False, bind=engine) as session:
+        existing_recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+        existing_recipe.rate = existing_recipe.rate + 1
+
+        try:
+            session.commit()
+            logger.info(f'Recipe recipe_id {recipe_id} ↔ Запись успешно обновлена')
+        except IntegrityError as e:
+            session.rollback()
+            logger.error(f'Recipe recipe_id {recipe_id} ↔ Произошла ошибка при обновлении записи:', e)

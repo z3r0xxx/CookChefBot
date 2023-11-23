@@ -33,22 +33,58 @@ async def start(message: Message):
     )
 
 
+async def send_message_with_recipe(call: CallbackQuery, recipe):
+    inline_btn_4.callback_data = MyCallback(test=f"add_rate_{recipe.id}").pack()
+    inline_btn_4.text = f"Круто! ({recipe.rate})"
+
+    text = (
+        f"<b>Как готовить?</b>\n"
+        f"{str(recipe.text)}\n\n"
+        f"<b>Какие продукты нужны?</b>\n"
+        f"{str(recipe.products)}\n\n"
+        f"<b>На 100 граммов</b>\n"
+        f"Ккал: {recipe.calories}\n"
+        f"Белки: {recipe.proteins}\n"
+        f"Жиры: {recipe.fats}\n"
+        f"Углеводы: {recipe.carbohydrates}\n"
+    )
+
+    await call.message.delete()
+    await bot.send_photo(
+        call.message.chat.id, 
+        photo=FSInputFile(recipe.image_path),
+        caption=text,
+        parse_mode="HTML",
+        reply_markup=inline_kb_random_recipe
+    )
+
+
+async def send_message_with_products(call: CallbackQuery):
+    await call.message.delete()
+    await bot.send_photo(
+        call.message.chat.id, 
+        photo=FSInputFile("images/banner_2.jpg"),
+        caption="Внизу есть кнопочки. Нажми на кнопкочи с нужными продуктами, а после того как закончишь - жми на кнопку \"Готово\"",
+        parse_mode="HTML",
+        reply_markup=inline_kb_items
+    )
+
+
 @dp.callback_query(MyCallback.filter())
 async def buttons_callback(call: CallbackQuery, callback_data: MyCallback):
     """ Обработчик нажатия на кнопки """
 
     # Кнопка "Вернуться в главное меню"
     if callback_data.test == "0":
-        await call.message.edit_media(
-            media=InputMediaPhoto(media=FSInputFile("images/banner_1.jpg"))
-        )
-
-        await call.message.edit_caption(
+        await call.message.delete()
+        await bot.send_photo(
+            call.message.chat.id, 
+            photo=FSInputFile("images/banner_1.jpg"),
             caption=(
                 "🔥 Привет, на связи бот <b>CookChef</b>!\n\n"
                 "Чтобы вкусно покушать, не обязательно заказывать еду из ресторана - можно приготовить самому!\n\n"
                 "Ниже ты увидишь несколько кнопок. \n"
-                "Выбери, что ты хочешь: получить случайный рецепт, подобрать еду по имеющимся продуктам или попробовать рецепт, <b>созданный искуственным интеллектом!</b>"
+                "Выбери, что ты хочешь: получить случайный рецепт или подобрать еду по имеющимся продуктам!"
             ),
             parse_mode="HTML",
             reply_markup=inline_kb_full
@@ -56,17 +92,26 @@ async def buttons_callback(call: CallbackQuery, callback_data: MyCallback):
 
     # Кнопка "Хочу случайный рецепт"
     if callback_data.test == "1":
-        random_recipe = get_random_recipe()
+        recipe = get_random_recipe()
+        await send_message_with_recipe(call, recipe)
+    
+    # Кнопка "Покажите другой"
+    if callback_data.test == "5":
+        recipe = get_random_recipe()
+        await send_message_with_recipe(call, recipe)
+    
+    # Кнопка "Круто!"
+    if callback_data.test.startswith("add_rate_"):
+        recipe_id = int(callback_data.test.replace("add_rate_", ""))
+        add_rate_to_recipe(recipe_id=recipe_id)
 
-        await call.message.edit_media(
-            media=InputMediaPhoto(media=FSInputFile(random_recipe.image_path))
-        )
+        recipe = get_recipe_(recipe_id=recipe_id)
+        await send_message_with_recipe(call, recipe)
+    
+    # Кнопка "Хочу рецепт по продуктам"
+    if callback_data.test == "2":
+        await send_message_with_products(call)
 
-        await call.message.edit_caption(
-            caption=random_recipe.text,
-            parse_mode="HTML",
-            reply_markup=inline_kb_random_recipe
-        )
 
 
 @dp.message()

@@ -33,6 +33,10 @@ class Recipe(Base):
     rate: Mapped[int] = mapped_column(Integer())
     products: Mapped[str] = mapped_column(String())
     image_path: Mapped[str] = mapped_column(String())
+    calories: Mapped[int] = mapped_column(Integer(), default=0) 
+    fats: Mapped[int] = mapped_column(Integer(), default=0)
+    carbohydrates: Mapped[int] = mapped_column(Integer(), default=0)
+    proteins: Mapped[int] = mapped_column(Integer(), default=0)
 
     def __repr__(self) -> str:
         return f"Recipe(id={self.id!r}, title={self.title!r}, text={self.text!r}, rate={self.rate!r}, products={self.products!r}, image_path={self.image_path!r})"
