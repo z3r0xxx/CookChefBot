@@ -52,7 +52,3 @@ def get_products_in_recipe(recipe_id):
             result.append(product)
 
     return result
-
-
-def get_total_stats():
-    pass
