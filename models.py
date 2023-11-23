@@ -19,9 +19,10 @@ class User(Base):
     user_id: Mapped[int] = mapped_column(Integer())
     total_messages: Mapped[int] = mapped_column(Integer(), default=0)
     role: Mapped[str] = mapped_column(String(), default="user")
+    selected_items: Mapped[str] = mapped_column(String(), default="0")
 
     def __repr__(self) -> str:
-        return f"User(id={self.id!r}, user_id={self.user_id!r}, total_messages={self.total_messages!r}, role={self.role!r})"
+        return f"User(id={self.id!r}, user_id={self.user_id!r}, total_messages={self.total_messages!r}, role={self.role!r}, selected_items={self.selected_items!r})"
 
 
 class Recipe(Base):
