@@ -72,3 +72,13 @@ def add_rate_to_recipe(recipe_id):
         except IntegrityError as e:
             session.rollback()
             logger.error(f'Recipe recipe_id {recipe_id} ↔ Произошла ошибка при обновлении записи:', e)
+
+def get_user_selected_items(user_id):
+    with Session(autoflush=False, bind=engine) as session:
+        existing_user = session.query(User).filter_by(user_id=user_id).first()
+
+        result = []
+        for s in existing_user.selected_items:
+            result.add(s)
+    
+    return result
